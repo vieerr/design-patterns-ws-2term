@@ -1,0 +1,15 @@
+{
+  "name": "workshop2term",
+  "version": "1.0.0",
+  "description": "Patrones de diseño: Abstract Factory, Composite y Decorator",
+  "type": "module",
+  "scripts": {
+    "factory": "node src/1-abstract-factory/main.js",
+    "composite": "node src/2-composite/main.js",
+    "decorator": "node src/3-decorator/main.js"
+  },
+  "keywords": ["design-patterns", "abstract-factory", "composite", "decorator"],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.24.0"
+}

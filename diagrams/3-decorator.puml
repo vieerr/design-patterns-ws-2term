@@ -1,0 +1,162 @@
+@startuml Decorator - Sistema de Mensajes
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+title Patron Decorator - Sistema de Envio de Mensajes MAPWER
+
+' ============================================
+' COMPONENT (Interfaz base)
+' ============================================
+interface Mensaje {
+  + getContenido(): string
+  + getDescripcion(): string
+  + enviar(destinatario: string): void
+}
+
+' ============================================
+' CONCRETE COMPONENT
+' ============================================
+class MensajeTextoClaro {
+  - contenido: string
+  - remitente: string
+  - fechaCreacion: Date
+  + constructor(contenido: string, remitente: string)
+  + getContenido(): string
+  + getDescripcion(): string
+  + enviar(destinatario: string): void
+}
+note right of MensajeTextoClaro
+  Componente Concreto
+  Mensaje base en texto claro
+  (comportamiento por defecto)
+end note
+
+' ============================================
+' BASE DECORATOR
+' ============================================
+abstract class MensajeDecorador {
+  # mensajeEnvuelto: Mensaje
+  + constructor(mensaje: Mensaje)
+  + getContenido(): string
+  + getDescripcion(): string
+  + enviar(destinatario: string): void
+}
+
+' ============================================
+' CONCRETE DECORATORS
+' ============================================
+class MensajeCifrado {
+  - algoritmo: string
+  + constructor(mensaje: Mensaje, algoritmo: string)
+  + getContenido(): string
+  + getDescripcion(): string
+  - cifrar(texto: string): string
+}
+note bottom of MensajeCifrado
+  Aplica cifrado al contenido
+  Algoritmo: AES-256
+end note
+
+class MensajeFirmado {
+  - firmaDigital: string
+  + constructor(mensaje: Mensaje)
+  + getContenido(): string
+  + getDescripcion(): string
+  + verificarFirma(): boolean
+  - generarFirma(texto: string): string
+}
+note bottom of MensajeFirmado
+  Agrega firma digital SHA-256
+  para verificar integridad
+end note
+
+' ============================================
+' COMPRESION (Con estrategia de algoritmo)
+' ============================================
+abstract class MensajeComprimido {
+  # algoritmoCompresion: string
+  + constructor(mensaje: Mensaje)
+  + getContenido(): string
+  + getDescripcion(): string
+  + {abstract} comprimir(texto: string): string
+  + {abstract} getNombreAlgoritmo(): string
+}
+
+class MensajeComprimidoHuffman {
+  + constructor(mensaje: Mensaje)
+  + comprimir(texto: string): string
+  + getNombreAlgoritmo(): string
+}
+note right of MensajeComprimidoHuffman
+  Compresion Huffman
+  Optimo para texto con
+  caracteres repetidos
+end note
+
+class MensajeComprimidoLempelZiv {
+  + constructor(mensaje: Mensaje)
+  + comprimir(texto: string): string
+  + getNombreAlgoritmo(): string
+}
+note right of MensajeComprimidoLempelZiv
+  Compresion Lempel-Ziv (LZ77)
+  Optimo para patrones
+  repetitivos
+end note
+
+' ============================================
+' RELACIONES
+' ============================================
+Mensaje <|.. MensajeTextoClaro
+Mensaje <|.. MensajeDecorador
+
+MensajeDecorador <|-- MensajeCifrado
+MensajeDecorador <|-- MensajeFirmado
+MensajeDecorador <|-- MensajeComprimido
+
+MensajeComprimido <|-- MensajeComprimidoHuffman
+MensajeComprimido <|-- MensajeComprimidoLempelZiv
+
+MensajeDecorador o-- Mensaje : envuelve
+
+' ============================================
+' EJEMPLO DE USO
+' ============================================
+note as N1
+  Ejemplo de decoracion:
+  
+  // Mensaje base
+  mensaje = new MensajeTextoClaro("Hola", "analista")
+  
+  // Agregar compresion Huffman
+  mensaje = new MensajeComprimidoHuffman(mensaje)
+  
+  // Agregar cifrado
+  mensaje = new MensajeCifrado(mensaje)
+  
+  // Agregar firma digital
+  mensaje = new MensajeFirmado(mensaje)
+  
+  // Resultado: Mensaje firmado, cifrado y comprimido
+  mensaje.enviar("cliente@email.com")
+  
+  Los decoradores se pueden combinar
+  en cualquier orden y cantidad
+end note
+
+' ============================================
+' EXTENSIBILIDAD
+' ============================================
+note as N2
+  Extension:
+  Para agregar un nuevo algoritmo
+  de compresion, solo hay que:
+  1. Crear clase que extienda MensajeComprimido
+  2. Implementar comprimir() y getNombreAlgoritmo()
+  
+  No se modifica codigo existente
+  (Principio Open/Closed)
+end note
+
+@enduml

@@ -1,0 +1,153 @@
+@startuml Abstract Factory - Sistema de Personajes
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+title Patron Abstract Factory - Creacion de Personajes
+
+' ============================================
+' ABSTRACT FACTORY
+' ============================================
+abstract class PersonajeFactory {
+  + {abstract} crearGuerrero(nombre: string): Personaje
+  + {abstract} crearMago(nombre: string): Personaje
+  + {abstract} getFaccion(): string
+}
+
+' ============================================
+' CONCRETE FACTORIES
+' ============================================
+class AlianzaFactory {
+  + crearGuerrero(nombre: string): Humano
+  + crearMago(nombre: string): Elfo
+  + crearHumano(nombre: string): Humano
+  + crearElfo(nombre: string): Elfo
+  + getFaccion(): string
+}
+
+class HordaFactory {
+  + crearGuerrero(nombre: string): Orco
+  + crearMago(nombre: string): NoMuerto
+  + crearOrco(nombre: string): Orco
+  + crearNoMuerto(nombre: string): NoMuerto
+  + getFaccion(): string
+}
+
+' ============================================
+' ABSTRACT PRODUCT
+' ============================================
+abstract class Personaje {
+  - nombre: string
+  - foto: string
+  - inteligencia: number
+  - fuerza: number
+  - poderMagico: number
+  - altura: number
+  - habilidades: string[]
+  - raza: string
+  - faccion: string
+  + mostrarInfo(): void
+  + {abstract} clonar(): Personaje
+}
+
+' ============================================
+' CONCRETE PRODUCTS - ALIANZA
+' ============================================
+class Humano {
+  + constructor(nombre: string, foto: string)
+  + clonar(): Humano
+}
+note right of Humano
+  Atributos Base:
+  Inteligencia: 60
+  Fuerza: 55
+  Poder Magico: 50
+  Altura: 1.75m
+end note
+
+class Elfo {
+  + constructor(nombre: string, foto: string)
+  + clonar(): Elfo
+}
+note right of Elfo
+  Atributos Base:
+  Inteligencia: 85
+  Fuerza: 35
+  Poder Magico: 90
+  Altura: 1.90m
+end note
+
+' ============================================
+' CONCRETE PRODUCTS - HORDA
+' ============================================
+class Orco {
+  + constructor(nombre: string, foto: string)
+  + clonar(): Orco
+}
+note right of Orco
+  Atributos Base:
+  Inteligencia: 30
+  Fuerza: 95
+  Poder Magico: 20
+  Altura: 2.10m
+end note
+
+class NoMuerto {
+  + constructor(nombre: string, foto: string)
+  + clonar(): NoMuerto
+}
+note right of NoMuerto
+  Atributos Base:
+  Inteligencia: 45
+  Fuerza: 50
+  Poder Magico: 80
+  Altura: 1.80m
+end note
+
+' ============================================
+' COLECCION
+' ============================================
+class ColeccionPersonajes {
+  - personajes: Map<string, Personaje>
+  - personajeSeleccionado: Personaje
+  + agregarPersonaje(personaje: Personaje): string
+  + seleccionarPersonaje(id: string): Personaje
+  + getPersonajeSeleccionado(): Personaje
+  + listarPersonajes(): void
+  + buscarPorFaccion(faccion: string): Personaje[]
+  + buscarPorRaza(raza: string): Personaje[]
+  + crearDesdeExistente(idBase: string, nuevoNombre: string): string
+}
+
+' ============================================
+' RELACIONES
+' ============================================
+PersonajeFactory <|-- AlianzaFactory
+PersonajeFactory <|-- HordaFactory
+
+Personaje <|-- Humano
+Personaje <|-- Elfo
+Personaje <|-- Orco
+Personaje <|-- NoMuerto
+
+AlianzaFactory ..> Humano : <<creates>>
+AlianzaFactory ..> Elfo : <<creates>>
+HordaFactory ..> Orco : <<creates>>
+HordaFactory ..> NoMuerto : <<creates>>
+
+ColeccionPersonajes o-- "*" Personaje : contiene
+
+' ============================================
+' PAQUETES
+' ============================================
+package "Alianza" {
+  Humano
+  Elfo
+}
+
+package "Horda" {
+  Orco
+  NoMuerto
+}
+
+@enduml

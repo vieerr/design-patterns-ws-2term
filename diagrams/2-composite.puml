@@ -1,0 +1,118 @@
+@startuml Composite - Jerarquia Organizacional
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+title Patron Composite - Estructura Organizacional de Empresa
+
+' ============================================
+' COMPONENT (Interfaz base)
+' ============================================
+abstract class ComponenteOrganizacional {
+  # nombre: string
+  # padre: ComponenteOrganizacional
+  + {abstract} getEmpleados(): number
+  + {abstract} getBeneficiosBrutos(): number
+  + {abstract} getInversionEdificios(): number
+  + {abstract} getContratosSemanales(): number
+  + {abstract} mostrarInfo(nivel: number): void
+  + agregar(componente: ComponenteOrganizacional): void
+  + eliminar(componente: ComponenteOrganizacional): void
+  + getHijos(): ComponenteOrganizacional[]
+  + esCompuesto(): boolean
+}
+
+' ============================================
+' LEAF (Hoja)
+' ============================================
+class UnidadNegocio {
+  - gerente: string
+  - _empleados: number
+  - _beneficiosBrutos: number
+  - _inversionEdificios: number
+  - _contratosSemanales: number
+  + constructor(nombre, gerente, empleados, beneficios, inversion, contratos)
+  + getEmpleados(): number
+  + getBeneficiosBrutos(): number
+  + getInversionEdificios(): number
+  + getContratosSemanales(): number
+  + mostrarInfo(nivel: number): void
+}
+note bottom of UnidadNegocio
+  Hoja del Composite
+  Retorna sus propios valores
+end note
+
+' ============================================
+' COMPOSITE (Compuesto)
+' ============================================
+class UnidadNegocioCompuesta {
+  - gerente: string
+  - hijos: ComponenteOrganizacional[]
+  + constructor(nombre: string, gerente: string)
+  + agregar(componente: ComponenteOrganizacional): this
+  + eliminar(componente: ComponenteOrganizacional): this
+  + getHijos(): ComponenteOrganizacional[]
+  + esCompuesto(): boolean
+  + getEmpleados(): number
+  + getBeneficiosBrutos(): number
+  + getInversionEdificios(): number
+  + getContratosSemanales(): number
+  + mostrarInfo(nivel: number): void
+}
+note bottom of UnidadNegocioCompuesta
+  Composite
+  Empleados = suma de hijos
+  Beneficios = suma de hijos
+  Inversion = suma de hijos
+  Contratos = promedio de hijos
+end note
+
+' ============================================
+' EMPRESA (Cliente/Raiz)
+' ============================================
+class Empresa {
+  - presidente: string
+  - ruc: string
+  - direccionPostal: string
+  - unidadRaiz: UnidadNegocioCompuesta
+  + constructor(nombre, presidente, ruc, direccion)
+  + setUnidadRaiz(unidad: UnidadNegocioCompuesta): void
+  + getUnidadRaiz(): UnidadNegocioCompuesta
+  + getTotalEmpleados(): number
+  + getTotalBeneficios(): number
+  + getTotalInversion(): number
+  + getPromedioContratos(): number
+  + mostrarEstructura(): void
+  + mostrarResumenEjecutivo(): void
+}
+
+' ============================================
+' RELACIONES
+' ============================================
+ComponenteOrganizacional <|-- UnidadNegocio
+ComponenteOrganizacional <|-- UnidadNegocioCompuesta
+
+UnidadNegocioCompuesta o-- "*" ComponenteOrganizacional : hijos
+
+Empresa *-- "1" UnidadNegocioCompuesta : unidadRaiz
+
+' ============================================
+' EJEMPLO DE JERARQUIA
+' ============================================
+note as N1
+  Ejemplo de estructura jerarquica:
+  
+  Empresa ACME Corp
+  +-- Division Principal (Compuesta)
+      +-- Ventas Nacionales (Hoja)
+      +-- Ventas Internacionales (Hoja)
+      +-- Division Tecnologia (Compuesta)
+          +-- Desarrollo (Hoja)
+          +-- Infraestructura (Hoja)
+          
+  Los valores se calculan recursivamente
+  hacia arriba en la jerarquia.
+end note
+
+@enduml
